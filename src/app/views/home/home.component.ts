@@ -39,9 +39,9 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
           sustain: 1,
         }
       },
-      harmonicity: 0.1,
-      vibratoRate: 1,
-      vibratoAmount: .1,
+      harmonicity: 1,
+      // vibratoRate: 1,
+      // vibratoAmount: .1,
     })
 
     
