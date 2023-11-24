@@ -2,7 +2,7 @@
 
 import { Injectable, OnDestroy } from '@angular/core';
 
-export type NotificationType = 'ERROR' | 'WARNING' | 'INFO'
+export type NotificationType = 'ERROR' | 'WARNING' | 'AUDIO' | 'INFO'
 
 export interface INotification {
 
@@ -14,6 +14,21 @@ export interface INotification {
     timeStamp?: number
 }
 
+export const NOTIFICATIONS = {
+    AUDIO: {
+        SOUND_ON: {
+            type: 'AUDIO',
+            title: 'Audio',
+            message: 'Sound: ON'
+        },
+
+        SOUND_OFF: {
+            type: 'AUDIO',
+            title: 'Audio',
+            message: 'Sound: OFF'
+        }
+    }
+}
 
 @Injectable({
     providedIn: 'root'
