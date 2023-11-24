@@ -1,16 +1,20 @@
-
+:root {
+    --c-black: #ffffff;
+    --c-yellow: rgb(255, 191, 0);
+}
 
 @import url('./assets/fonts/font-face.css');
 
 * {
     padding: 0px;
     margin: 0px;
+    color: var(--c-black);
 }
 
 a,
 a:active {
     text-decoration: none;
-    color: #000;
+    color: var(--c-black);
 }
 
 html {
@@ -20,6 +24,6 @@ html {
 
 body {
 
-    background-color: rgb(255, 200, 20);
+    background-color: var(--c-yellow)
 
 }

@@ -36,7 +36,7 @@ export class WaveComponent implements AfterViewInit {
     this.colors = []
 
     this.amplitude = this.h / 2
-    this.frequency = 16
+    this.frequency = 15.98
     this.phase = 0
 
     this.noise = 5
@@ -50,8 +50,6 @@ export class WaveComponent implements AfterViewInit {
     this.h = host.clientHeight
 
     this.amplitude = this.h / 2 - this.noise * 2
-
-    console.log(this.w, this.h)
 
     this.init()
   }
@@ -71,10 +69,10 @@ export class WaveComponent implements AfterViewInit {
     // this.lines.push('')
 
     this.colors = [
-      '#000000',
-      '#000000',
-      '#000000',
-      '#000000',
+      '#FFFFFF',
+      '#FFFFFF',
+      '#FFFFFF',
+      '#FFFFFF',
       // '#0000FF',
       '#00FFFF',
       // '#FFFFFF',
