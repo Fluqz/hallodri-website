@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import * as Tone from 'tone'
+import { NotificationService } from '../provider/notification.service';
 
 @Component({
   selector: 'home',
@@ -15,7 +16,7 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
   // private synth: Tone.PolySynth<Tone.DuoSynth>
   private delay: Tone.FeedbackDelay
 
-  constructor() {
+  constructor(public notification: NotificationService) {
 
     // this.synth = new Tone.PolySynth(Tone.DuoSynth)
 
@@ -74,6 +75,11 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
 
+  getNotifications() {
+
+    return this.notification.notifications
+  }
+
   private init: boolean = false
   onClickContainer(e: MouseEvent) {
 
@@ -82,6 +88,12 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
       this.init = true
       Tone.start()
       Tone.Transport.start()
+
+      this.notification.send({
+        type: 'INFO',
+        title: 'Audio',
+        message: 'Sound: ON'
+      })
     }
   }
 

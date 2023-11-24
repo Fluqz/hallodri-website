@@ -1,2 +1,22 @@
 
 <router-outlet></router-outlet>
+
+
+
+
+
+
+
+
+
+
+<!-- Notifications -->
+<div *ngIf="notification && notification.notifications.length > 0">
+
+    <div *ngFor="let n of notification.notifications; let i = index;">
+
+        <notification [notification]="n" [index]="i"></notification>
+
+    </div>
+
+</div>
