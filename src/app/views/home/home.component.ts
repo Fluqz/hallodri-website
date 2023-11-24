@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import * as Tone from 'tone'
-import { NotificationService } from '../../provider/notification.service';
+import { INotification, NOTIFICATIONS, NotificationService } from '../../provider/notification.service';
 
 @Component({
   selector: 'home',
@@ -12,16 +12,18 @@ import { NotificationService } from '../../provider/notification.service';
 })
 export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
 
-  private synth: Tone.DuoSynth
-  // private synth: Tone.PolySynth<Tone.DuoSynth>
+  // private synth: Tone.DuoSynth
+  private synth: Tone.PolySynth<Tone.DuoSynth>
   private delay: Tone.FeedbackDelay
 
   constructor(public notification: NotificationService) {
 
-    // this.synth = new Tone.PolySynth(Tone.DuoSynth)
+    //@ts-ignore
+    this.synth = new Tone.PolySynth(Tone.DuoSynth)
 
-    this.synth = new Tone.DuoSynth()
+    // this.synth = new Tone.DuoSynth()
 
+    //@ts-ignore
     this.synth.set({
       voice1: {
         envelope: {
@@ -89,11 +91,7 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
       Tone.start()
       Tone.Transport.start()
 
-      this.notification.send({
-        type: 'INFO',
-        title: 'Audio',
-        message: 'Sound: ON'
-      })
+      this.notification.send(NOTIFICATIONS.AUDIO.SOUND_ON as INotification)
     }
   }
 
@@ -102,14 +100,18 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
 
     if(this.init == true) {
 
-      const notes = ['F', 'C', 'E', 'G']
-      const i = Math.round(Math.random() * (notes.length-1))
-      const o = Math.round(Math.random() * 5) + 1
-      const note = notes[i] + o
+      const getRandomNote = () => {
 
-      this.synth.triggerAttackRelease(note, .5, Tone.context.currentTime)
-      // this.synth.triggerAttackRelease('C4', .1, Tone.context.currentTime)
-      // this.synth.triggerAttackRelease('E4', .1, Tone.context.currentTime)
+        const notes = ['F', 'C', 'E', 'G', 'A']
+        const i = Math.round(Math.random() * (notes.length-1))
+        const o = Math.round(Math.random() * 6) + 1
+        const note = notes[i] + o
+
+        return note
+      }
+
+      this.synth.triggerAttackRelease(getRandomNote(), .5, Tone.context.currentTime)
+      this.synth.triggerAttackRelease(getRandomNote(), .5, Tone.context.currentTime)
     }
   }
 }
