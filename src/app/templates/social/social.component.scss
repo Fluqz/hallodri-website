@@ -1,0 +1,30 @@
+
+:host {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    color: #000000;
+
+    .social-container {
+
+        display: inline-block;
+
+        height: 25px;
+        line-height: 25px;
+
+        padding: 0px 10px;
+
+        a {
+            margin: 0px 5px;
+
+            transition: color .08s;
+        }
+
+        a:hover {
+
+            color: rgb(0, 255, 179);
+        }
+    }
+}

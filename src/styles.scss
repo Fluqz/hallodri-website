@@ -1,1 +1,25 @@
-/* You can add global styles to this file, and also import other style files */
+
+
+@import url('./assets/fonts/font-face.css');
+
+* {
+    padding: 0px;
+    margin: 0px;
+}
+
+a,
+a:active {
+    text-decoration: none;
+    color: #000;
+}
+
+html {
+
+    font-family: 'Minecraft', Courier, Verdana, monospace;
+}
+
+body {
+
+    background-color: rgb(255, 200, 20);
+
+}

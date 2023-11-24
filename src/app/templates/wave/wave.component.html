@@ -1,0 +1,12 @@
+
+<div class="sine-wave">
+
+    <svg xmlns="http://www.w3.org/2000/svg">
+
+            <polyline *ngFor="let w of waves; let i = index" id="wave" fill="none" [attr.stroke]="colors[i]" stroke-width="1px" [attr.points]="w" />
+
+            <polyline *ngFor="let l of lines; let i = index" id="wave" fill="none" [attr.stroke]="colors[i]" stroke-width="1px" [attr.points]="l" />
+
+      </svg>
+
+</div>
