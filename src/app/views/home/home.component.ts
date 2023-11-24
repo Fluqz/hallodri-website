@@ -42,11 +42,11 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
         }
       },
       harmonicity: 1,
+      volume: -6
       // vibratoRate: 1,
       // vibratoAmount: .1,
     })
 
-    
 
     this.synth.volume.value = -20
 

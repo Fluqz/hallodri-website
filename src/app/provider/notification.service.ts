@@ -1,7 +1,7 @@
 
 
 import { Injectable, OnDestroy } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 
 export type NotificationType = 'ERROR' | 'WARNING' | 'AUDIO' | 'INFO'
 
