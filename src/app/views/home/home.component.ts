@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import * as Tone from 'tone'
-import { NotificationService } from '../provider/notification.service';
+import { NotificationService } from '../../provider/notification.service';
 
 @Component({
   selector: 'home',
