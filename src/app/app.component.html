@@ -11,9 +11,9 @@
 
 
 <!-- Notifications -->
-<div *ngIf="notification && notification.notifications.length > 0">
+<div *ngIf="notifications && notifications.length > 0">
 
-    <div *ngFor="let n of notification.notifications; let i = index;">
+    <div *ngFor="let n of notifications; let i = index;">
 
         <notification [notification]="n" [index]="i"></notification>
 

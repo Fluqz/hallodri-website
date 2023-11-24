@@ -1,8 +1,10 @@
 
 
 import { Injectable, OnDestroy } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
 
 export type NotificationType = 'ERROR' | 'WARNING' | 'AUDIO' | 'INFO'
+
 
 export interface INotification {
 
@@ -15,6 +17,7 @@ export interface INotification {
 }
 
 export const NOTIFICATIONS = {
+
     AUDIO: {
         SOUND_ON: {
             type: 'AUDIO',
@@ -35,22 +38,21 @@ export const NOTIFICATIONS = {
 })
 export class NotificationService implements OnDestroy {
 
-    notificationTime: number = 6 * 1000
+    private _notificationTime: number = 6 * 1000
 
     notifications: INotification[]
 
     private _IID: number
 
+    onChange: Subject<INotification[]>
+
     constructor() {
 
         this.notifications = []
 
+        this.onChange = new Subject()
+
         this._IID = window.setInterval(this.clean.bind(this), 500)
-    }
-
-    getNotifications() {
-
-        return this.notifications
     }
 
     send(notification: INotification) {
@@ -60,7 +62,7 @@ export class NotificationService implements OnDestroy {
         notification.dirty = false
 
         if(notification.timeStamp == undefined)
-            notification.timeStamp = Date.now() + this.notificationTime
+            notification.timeStamp = Date.now() + this._notificationTime
 
         else if(notification.timeStamp < Date.now()) {
 
@@ -68,6 +70,8 @@ export class NotificationService implements OnDestroy {
 
             throw console.error('Notification ERR: NotificationService.send(n) - notification.timeStamp is already timed out', notification.timeStamp);
         }
+
+        this.onChange.next(this.notifications)
     }
 
     remove(notification: INotification) : boolean {
@@ -107,6 +111,8 @@ export class NotificationService implements OnDestroy {
         for(let n of dirtyNotifications) {
 
             this.notifications.splice(this.notifications.indexOf(n), 1)
+
+            this.onChange.next(this.notifications)
         }
     }
 

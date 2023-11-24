@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NotificationService } from './provider/notification.service';
+import { INotification, NotificationService } from './provider/notification.service';
 
 @Component({
   selector: 'app-root',
@@ -8,9 +8,13 @@ import { NotificationService } from './provider/notification.service';
 })
 export class AppComponent {
 
+  notifications: INotification[]
 
   constructor(public notification: NotificationService) {
 
-    
+    notification.onChange.subscribe((_notifications) => {
+
+      this.notifications = _notifications
+    })
   }
 }
