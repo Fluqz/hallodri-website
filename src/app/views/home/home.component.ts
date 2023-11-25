@@ -7,7 +7,8 @@ import { INotification, NOTIFICATIONS, NotificationService } from '../../provide
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   host: {
-    '(click)': 'onClickContainer($event)',
+    '(document:mousedown)': 'onMouseDown($event)',
+    '(document:mouseup)': 'onMouseUp($event)',
   }
 })
 export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
@@ -16,10 +17,13 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
   synth: Tone.PolySynth<Tone.DuoSynth>
   delay: Tone.FeedbackDelay
 
-  noteLength: number = .5
-
+  private init: boolean = false
+  private mouseDown: boolean = false
+  private activeNotes: string[]
 
   constructor(public notification: NotificationService) {
+
+    this.activeNotes = []
 
     //@ts-ignore
     this.synth = new Tone.PolySynth(Tone.DuoSynth)
@@ -75,6 +79,7 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
 
   ngOnDestroy() {
 
+    this.synth.releaseAll()
     this.synth.dispose()
   }
 
@@ -84,8 +89,10 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
     return this.notification.notifications
   }
 
-  private init: boolean = false
-  onClickContainer(e: MouseEvent) {
+
+  onMouseDown(e: MouseEvent) {
+
+    this.mouseDown = true
 
     if(this.init == false) {
 
@@ -95,11 +102,7 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
 
       this.notification.send(NOTIFICATIONS.AUDIO.SOUND_ON as INotification)
     }
-  }
-
-  onClick(e: MouseEvent) {
-
-    if(this.init == true) {
+    else {
 
       const getRandomNote = () => {
 
@@ -111,8 +114,24 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
         return note
       }
 
-      this.synth.triggerAttackRelease(getRandomNote(), this.noteLength, Tone.context.currentTime)
-      this.synth.triggerAttackRelease(getRandomNote(), this.noteLength, Tone.context.currentTime)
+      let i = this.activeNotes.push(getRandomNote()) - 1
+      this.synth.triggerAttack(this.activeNotes[i], Tone.context.currentTime)
+
+      i = this.activeNotes.push(getRandomNote()) - 1
+      this.synth.triggerAttack(this.activeNotes[i], Tone.context.currentTime)
     }
+  }
+
+  onMouseUp(e: MouseEvent) {
+
+    this.mouseDown = false
+
+    let note = this.activeNotes.splice(this.activeNotes.length - 1, 1)
+    this.synth.triggerRelease(note, Tone.context.currentTime)
+
+    note = this.activeNotes.splice(this.activeNotes.length - 1, 1)
+    this.synth.triggerRelease(note, Tone.context.currentTime)
+
+    // this.synth.releaseAll()
   }
 }
