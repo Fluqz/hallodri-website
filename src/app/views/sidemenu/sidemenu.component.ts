@@ -27,14 +27,7 @@ export class SidemenuComponent {
     else this.active = a
   }
 
-  open() {
-
-    console.log('open')
-    this.active = true
-  }
-  close() {
-
-    console.log('close')
-    this.active = false
-  }
+  open() { this.active = true }
+  
+  close() { this.active = false }
 }

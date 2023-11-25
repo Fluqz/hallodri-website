@@ -21,15 +21,5 @@ export class AppComponent {
     })
   }
 
-  open() {
-
-    console.log('open')
-    if(this.sidemenu) this.sidemenu.open()
-
-    this.notification.send({
-      type: 'INFO',
-      title: 'Menu',
-      message: 'Menu Open'
-    })
-  }
+  open() { if(this.sidemenu) this.sidemenu.open() }
 }
