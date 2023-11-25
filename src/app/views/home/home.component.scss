@@ -21,6 +21,18 @@
         -ms-user-select: none; /* IE 10 and IE 11 */
         user-select: none; /* Standard syntax */
 
+        .mute {
+
+            position: absolute;
+
+            top: 40px;
+            right: 10px;
+        }
+        .mute.active,
+        .mute:hover {
+
+            color: var(--c-cyan);
+        }
 
         .logo {
 
@@ -67,11 +79,4 @@ social {
     left: unset;
 
     display: block;
-    height: 25px;
-
-    .social-container {
-
-        height: 25px;
-        line-height: 25px;
-    }
 }

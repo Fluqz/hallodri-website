@@ -49,6 +49,18 @@ export const NOTIFICATIONS = {
             message: 'Unmuted',
             duration: 4000,
         },
+        MASTER_MUTED: {
+            type: 'AUDIO',
+            title: 'Audio',
+            message: 'Master Muted',
+            duration: Number.POSITIVE_INFINITY,
+        },
+        MASTER_UNMUTED: {
+            type: 'AUDIO',
+            title: 'Audio',
+            message: 'Master Unmuted',
+            duration: 4000,
+        },
     },
     SYSTEM: {
         BOOTING: {
@@ -89,14 +101,18 @@ export class NotificationService implements OnDestroy {
         this._IID = window.setInterval(this.clean.bind(this), 200)
     }
 
-    send(notification: INotification) {
+    send(notification: INotification, duration?: number) : INotification {
 
         if(this.notifications.indexOf(notification) == -1)
             this.notifications.push(notification)
 
         notification.dirty = false
 
-        notification.duration = (notification.duration == null || notification.duration < 0) ? this._notificationTime : notification.duration
+        if(duration == undefined || duration < 0)
+            notification.duration = (notification.duration == null || notification.duration < 0) ? this._notificationTime : notification.duration
+
+        // TODO - MANIPULATING THE OBJECT HERE! Make copy of object??
+        else notification.duration = duration
 
         if(notification.timeStamp == undefined || notification.timeStamp < Date.now())
             notification.timeStamp = Date.now()
@@ -108,11 +124,11 @@ export class NotificationService implements OnDestroy {
             console.trace()
 
             throw console.error('Notification ERR: NotificationService.send(n) - notification.timeStamp is already timed out', notification);
-
-            return
         }
 
         this.onChange.next(this.notifications)
+
+        return notification
     }
 
     remove(notification: INotification) : boolean {

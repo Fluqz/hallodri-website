@@ -5,7 +5,7 @@
     justify-content: center;
     align-items: center;
 
-    color: var(--c-black);
+    height: 40px;
 
     .social-container {
 
@@ -24,7 +24,7 @@
 
         a:hover {
 
-            color: rgb(0, 255, 179);
+            color: var(--c-cyan);
         }
     }
 }

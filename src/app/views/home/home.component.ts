@@ -27,6 +27,10 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
   private pointerLeft: boolean = false
 
   private _muted: boolean = false
+  masterMuted: boolean = false
+  private muteMasterNote: INotification | undefined
+  private muteNote: INotification | undefined
+
 
   public synthesizer: Synthesizer
   public key: Tone.Unit.Note
@@ -85,9 +89,57 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
 
     if(this.synthesizer.muted == m) return
 
+    if(this.masterMuted == true) return
+
     this.synthesizer.mute(m)
 
-    this.notification.send((this._muted ?  NOTIFICATIONS.AUDIO.MUTED : NOTIFICATIONS.AUDIO.UNMUTED) as INotification)
+    this._muted = this.synthesizer.muted
+
+    if(this.muteNote != undefined) {
+
+      this.notification.remove(this.muteNote)
+    }
+
+    this.muteNote = this.notification.send(
+      (this._muted ?  NOTIFICATIONS.AUDIO.MUTED : NOTIFICATIONS.AUDIO.UNMUTED) as INotification,
+    )
+  }
+
+  onMuteMaster(e: PointerEvent) {
+
+    e.stopPropagation()
+
+    this.toggleMuteMaster()
+  }
+
+  toggleMuteMaster() {
+
+    // MUTE
+    if(this.masterMuted == false) {
+
+      this.mute(true)
+      this.masterMuted = true
+
+      if(this.muteMasterNote != undefined) {
+
+        this.notification.remove(this.muteMasterNote)
+      }
+
+      this.muteMasterNote = this.notification.send(NOTIFICATIONS.AUDIO.MASTER_MUTED as INotification)
+    }
+    // UNMUTE
+    else {
+
+      this.masterMuted = false
+      this.mute(false)
+
+      if(this.muteMasterNote != undefined) {
+
+        this.notification.remove(this.muteMasterNote)
+      }
+
+      this.muteMasterNote = this.notification.send(NOTIFICATIONS.AUDIO.MASTER_UNMUTED as INotification)
+    }
   }
 
   onChangeKey(e: PointerEvent) {
