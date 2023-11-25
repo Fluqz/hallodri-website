@@ -28,7 +28,6 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
 
   private _muted: boolean = false
   masterMuted: boolean = false
-  private muteMasterNote: INotification | undefined
   private muteNote: INotification | undefined
 
 
@@ -120,25 +119,19 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
       this.mute(true)
       this.masterMuted = true
 
-      if(this.muteMasterNote != undefined) {
 
-        this.notification.remove(this.muteMasterNote)
+      if(this.muteNote != undefined) {
+
+        this.notification.remove(this.muteNote)
       }
-
-      this.muteMasterNote = this.notification.send(NOTIFICATIONS.AUDIO.MASTER_MUTED as INotification)
+      
+      this.muteNote = this.notification.send(NOTIFICATIONS.AUDIO.MUTED as INotification, Number.POSITIVE_INFINITY)
     }
     // UNMUTE
     else {
 
       this.masterMuted = false
       this.mute(false)
-
-      if(this.muteMasterNote != undefined) {
-
-        this.notification.remove(this.muteMasterNote)
-      }
-
-      this.muteMasterNote = this.notification.send(NOTIFICATIONS.AUDIO.MASTER_UNMUTED as INotification)
     }
   }
 
