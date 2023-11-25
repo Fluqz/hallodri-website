@@ -56,7 +56,13 @@ export const NOTIFICATIONS = {
             title: 'System',
             message: 'Booting...',
             duration: 4000,
-        }
+        },
+        SYNTH_READY: {
+            type: 'AUDIO',
+            title: 'System',
+            message: 'Synthesizer ready.',
+            duration: 4000,
+        },
     }
     
 }
@@ -85,7 +91,8 @@ export class NotificationService implements OnDestroy {
 
     send(notification: INotification) {
 
-        this.notifications.push(notification)
+        if(this.notifications.indexOf(notification) == -1)
+            this.notifications.push(notification)
 
         notification.dirty = false
 
@@ -104,7 +111,6 @@ export class NotificationService implements OnDestroy {
 
             return
         }
-
 
         this.onChange.next(this.notifications)
     }
@@ -127,6 +133,7 @@ export class NotificationService implements OnDestroy {
         if(this.notifications.length == 0) return
 
         let dirtyNotifications: INotification[] = []
+
         for(let n of this.notifications) {
 
             // Check if notification is overdue

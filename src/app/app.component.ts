@@ -34,10 +34,11 @@ export class AppComponent implements AfterViewInit {
       this.notifications = _notifications
     })
 
-    this.notification.send(NOTIFICATIONS.SYSTEM.BOOTING as INotification)
   }
 
   ngAfterViewInit(): void {
+
+    this.notification.send(NOTIFICATIONS.SYSTEM.BOOTING as INotification)
 
   }
 

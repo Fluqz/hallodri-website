@@ -2,6 +2,8 @@ import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import * as Tone from 'tone'
 import { INotification, NOTIFICATIONS, NotificationService } from '../../provider/notification.service';
 import { G } from 'src/app/globals';
+import { Synthesizer } from 'src/app/synthesizer';
+import { AEOLIAN_SCALE, BLUES_9NOTE_SCALE, CHROMATIC, DORIAN_SCALE, HEPTATONIC_SCALE, HEXATONIC_SCALE, HIRAJOSHI_SCALE, IONIAN_SCALE, LOKRIAN_SCALE, LYDIAN_SCALE, MINOR_PENTATONIC_SCALE, MYXOLYDIAN_SCALE, PENTATONIC_SCALE, PHRYGIAN_SCALE, getScale, standard_notes } from 'src/app/util/note-frequencies';
 
 @Component({
   selector: 'home',
@@ -15,92 +17,132 @@ import { G } from 'src/app/globals';
     '(document:visibilitychange)': 'onVisibilityChange($event)',
     '(window:pointermove)': 'onPointerMove($event)',
     '(document:mouseleave)': 'onMouseLeave($event)',
-    
   }
 })
 export class HomeComponent implements OnDestroy, AfterViewInit {
-
-  // private synth: Tone.DuoSynth
-  synth: Tone.PolySynth<Tone.DuoSynth>
-  delay: Tone.FeedbackDelay
 
   private init: boolean = false
   private pointerDown: boolean = false
   /** Did the pointer leave the window */
   private pointerLeft: boolean = false
-  private activeNotes: string[]
 
   private _muted: boolean = false
 
+  public synthesizer: Synthesizer
+  public key: Tone.Unit.Note
+  public scale: number[]
+  public voiceAmount: number
+
+  public scalesIndex: number = 0
+  public scales: { name:string, scale:number[] }[] = [
+
+    // [ 'A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#' ]
+
+    // ['A', 'C', 'E', 'F', 'G' ]
+    // [ 3, 4, 1, 2 ]
+    { name: 'CUSTOM 1', scale: [ 3, 4, 1, 2 ] },
+
+    { name: 'MINOR PENTATONIC', scale: MINOR_PENTATONIC_SCALE },
+    { name: 'PENTATONIC', scale: PENTATONIC_SCALE },
+
+    { name: 'IONIAN', scale: IONIAN_SCALE },
+    { name: 'DORIAN', scale: DORIAN_SCALE },
+    { name: 'PHRYGIAN', scale: PHRYGIAN_SCALE },
+    { name: 'LYDIAN', scale: LYDIAN_SCALE },
+    { name: 'MYXOLYDIAN', scale: MYXOLYDIAN_SCALE },
+    { name: 'AEOLIAN', scale: AEOLIAN_SCALE },
+    { name: 'LOKRIAN', scale: LOKRIAN_SCALE },
+
+    { name: 'HIRAJOSHI', scale: HIRAJOSHI_SCALE },
+    { name: 'HEXATONIC', scale: HEXATONIC_SCALE },
+    { name: 'HEPTATONIC', scale: HEPTATONIC_SCALE },
+    { name: 'BLUES 9NOTE', scale: BLUES_9NOTE_SCALE },
+
+    { name: 'CHROMATIC', scale: CHROMATIC },
+  ]
+
   constructor(public notification: NotificationService) {
 
-    this.activeNotes = []
+    this.synthesizer = new Synthesizer()
 
-    //@ts-ignore
-    this.synth = new Tone.PolySynth(Tone.DuoSynth)
-    // this.synth = new Tone.DuoSynth()
-
-    //@ts-ignore
-    this.synth.set({
-      voice1: {
-        envelope: {
-          attack: .1,
-          release: 5,
-          decay: 1,
-          sustain: 1
-        }
-      },
-      voice0: {
-        envelope: {
-          attack: .1,
-          release: 5,
-          decay: 1,
-          sustain: 1,
-        }
-      },
-      harmonicity: 1,
-      volume: -6
-      // vibratoRate: 1,
-      // vibratoAmount: .1,
-    })
-
-    this.synth.volume.value = -20
-
-    this.delay = new Tone.FeedbackDelay(.3, .7)
-
-    this.synth.connect(this.delay)
-
-    this.delay.toDestination()
-    this.synth.toDestination()
-
+    this.scale = this.scales[this.scalesIndex].scale
+    this.key = 'A3'
+    this.voiceAmount = 2
   }
 
   ngAfterViewInit() {
 
+    this.notification.send(NOTIFICATIONS.SYSTEM.SYNTH_READY as INotification)
+
     this.notification.send(NOTIFICATIONS.AUDIO.WAVE_ENABLED as INotification)
   }
-
   ngOnDestroy() {
 
-    this.synth.releaseAll()
-    this.synth.dispose()
+    this.synthesizer.destroy()
   }
 
   mute(m:boolean) {
-    
-    this._muted = m === true ? true : false
 
-    if(this._muted) Tone.Destination.volume.exponentialRampTo(Number.NEGATIVE_INFINITY, .3, Tone.now())
-    else Tone.Destination.volume.exponentialRampTo(1, .3, Tone.now())
+    if(this.synthesizer.muted == m) return
 
-    // console.trace()
+    this.synthesizer.mute(m)
+
     this.notification.send((this._muted ?  NOTIFICATIONS.AUDIO.MUTED : NOTIFICATIONS.AUDIO.UNMUTED) as INotification)
+  }
+
+  onChangeKey(e: PointerEvent) {
+
+    e.stopPropagation()
+
+    const key = this.key.replace(/[0-9]/g, '')
+
+    let i = standard_notes.indexOf(key)
+
+    if(i == -1) return
+
+    if(e.shiftKey) i--
+    else i++
+
+    if(i >= standard_notes.length) i = 0
+    else if(i < 0) i = standard_notes.length - 1
+
+    this.key = (standard_notes[i] + '3') as Tone.Unit.Note
+  }
+
+  onChangeScale(e: MouseEvent) {
+
+    e.stopPropagation()
+
+    let i = this.scalesIndex
+
+    if(e.shiftKey) i--
+    else i++
+
+    if(i >= this.scales.length) i = 0
+    else if(i < 0) i = this.scales.length - 1
+
+    this.scalesIndex = i
+
+    this.scale = this.scales[this.scalesIndex].scale
+  }
+
+  onVoiceAmountKey(e: PointerEvent) {
+
+    e.stopPropagation()
+
+    if(e.shiftKey) this.voiceAmount--
+    else this.voiceAmount++
+
+    if(this.voiceAmount > this.scale.length) this.voiceAmount = 1
+    else if(this.voiceAmount <= 0) this.voiceAmount = this.scale.length
+
+    this.voiceAmount
   }
 
   onPointerDown(e: PointerEvent) {
 
     if(e.button == 2) {
-      this.synth.releaseAll()
+      this.synthesizer.releaseAll()
       return 
     }
 
@@ -113,56 +155,76 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
       Tone.Transport.start()
 
       this.notification.send(NOTIFICATIONS.AUDIO.SOUND_ON as INotification)
+
+      this.notification.send({
+        type: 'SYSTEM',
+        title: 'Synthesizer',
+        message: 'CLICK ME !',
+        duration: 2000
+      })
     }
     else {
 
-      const getRandomNote = () => {
+      const notes = this.triggerSynth()
 
-        const notes = ['F', 'C', 'E', 'G', 'A']
-        const i = Math.round(Math.random() * (notes.length-1))
-        const o = Math.round(Math.random() * 6) + 1
-        const note = notes[i] + o
+      let i = 0
+      for(let n of notes) {
 
-        return note
+        this.notification.send({
+          type: 'AUDIO',
+          title: 'Note ' + (i + 1),
+          message: n,
+          duration: 2000
+        })
+
+        i++
       }
-
-      let i = this.activeNotes.push(getRandomNote()) - 1
-      this.synth.triggerAttack(this.activeNotes[i], Tone.context.currentTime)
-
-      i = this.activeNotes.push(getRandomNote()) - 1
-      this.synth.triggerAttack(this.activeNotes[i], Tone.context.currentTime)
-
-      this.notification.send({
-        type: 'AUDIO',
-        title: 'Note',
-        message: this.activeNotes[this.activeNotes.length - 1],
-        duration: 2000
-      })
-
-      this.notification.send({
-        type: 'AUDIO',
-        title: 'Note',
-        message: this.activeNotes[this.activeNotes.length - 2],
-        duration: 2000
-      })
     }
+  }
+
+  private triggerSynth() : Tone.Unit.Note[] {
+
+    const getRandomNoteFromNotes = (notes: Tone.Unit.Note[]) => {
+
+      const i = Math.round(Math.random() * (notes.length-1))
+      const o = Math.round(Math.random() * 6) + 1
+
+      const note = (notes[i].replace(/[0-9]/g, '') + o)
+
+      return note as Tone.Unit.Note
+    }
+
+
+    // Scale length == max
+
+    const scaleNotes = getScale(this.key, this.scale)
+
+    if(scaleNotes == null) {
+     
+      throw console.error('Error getScale(args...) returns null! - Home.component.ts - triggerSynth()');
+      return []
+    }
+
+    console.log('Scale Notes', scaleNotes)
+
+    const notes: Tone.Unit.Note[] = []
+
+    for(let i = 0; i < this.voiceAmount; i++) {
+
+      const note = getRandomNoteFromNotes(scaleNotes)
+      notes.push(note)
+      
+      this.synthesizer.triggerAttack(note)
+    }
+
+    return notes
   }
 
   onPointerUp(e: PointerEvent) {
 
     this.pointerDown = false
 
-    // if(this.activeNotes.length >= 2) {
-    //   let note = this.activeNotes.splice(this.activeNotes.length - 1, 1)
-    //   this.synth.triggerRelease(note, Tone.context.currentTime)
-
-    //   note = this.activeNotes.splice(this.activeNotes.length - 1, 1)
-    //   this.synth.triggerRelease(note, Tone.context.currentTime)
-    // }
-
-    this.synth.releaseAll()
-
-    this.activeNotes.length = 0
+    this.synthesizer.releaseAll()
   }
 
   onPointerMove(e: PointerEvent) {
@@ -180,28 +242,28 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
 
     this.pointerLeft = true
 
-    this.synth.releaseAll()
+    this.synthesizer.releaseAll()
 
     this.mute(true)
   }
 
   onFocus(e: Event) {
 
-    this.synth.releaseAll()
+    this.synthesizer.releaseAll()
 
     this.mute(false)
   }
 
   onBlur(e: Event) {
 
-    this.synth.releaseAll()
+    this.synthesizer.releaseAll()
 
     this.mute(true)
   }
 
   onVisibilityChange(e: Event) {
 
-    this.synth.releaseAll()
+    this.synthesizer.releaseAll()
 
     if (document.visibilityState == "visible") {
               

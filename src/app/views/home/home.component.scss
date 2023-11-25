@@ -24,20 +24,38 @@
 
         .logo {
 
-            cursor: pointer;
 
             #home-title {
+
                 font-size: 3rem;
                 text-align: center;
                 margin-bottom: 20px;
+
+                cursor: pointer;
             }
 
             #wave-container {
 
                 width: 300px;
                 height: 180px;
+
+                cursor: pointer;
             }
         }
+    }
+}
+
+.synthesizer-menu {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+
+    .sq-btn {
+
+        width: auto;
+        margin: 0px 5px;
     }
 }
 
