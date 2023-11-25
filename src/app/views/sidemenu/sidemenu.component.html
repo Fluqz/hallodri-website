@@ -1,0 +1,17 @@
+<div class="menu-inner">
+
+    <div class="sq-btn" (click)="close()"><</div>
+
+    <div class="menu-element title">Projects</div>
+
+    <div *ngFor="let l of links">
+
+        <div class="menu-element">
+
+            <a [href]="l.link" target="_blank">{{ l.name }}</a>
+
+        </div>
+
+    </div>
+
+</div>

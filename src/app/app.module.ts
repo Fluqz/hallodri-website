@@ -11,6 +11,7 @@ import { SocialComponent } from './views/templates/social/social.component';
 import { NotificationComponent } from './views/templates/notification/notification.component';
 
 import { NotificationService } from './provider/notification.service';
+import { SidemenuComponent } from './views/sidemenu/sidemenu.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { NotificationService } from './provider/notification.service';
     HomeComponent,
     WaveComponent,
     SocialComponent,
-    NotificationComponent
+    NotificationComponent,
+    SidemenuComponent
   ],
   imports: [
     BrowserModule,

@@ -13,14 +13,16 @@ import { INotification, NOTIFICATIONS, NotificationService } from '../../provide
 export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
 
   // private synth: Tone.DuoSynth
-  private synth: Tone.PolySynth<Tone.DuoSynth>
-  private delay: Tone.FeedbackDelay
+  synth: Tone.PolySynth<Tone.DuoSynth>
+  delay: Tone.FeedbackDelay
+
+  noteLength: number = .5
+
 
   constructor(public notification: NotificationService) {
 
     //@ts-ignore
     this.synth = new Tone.PolySynth(Tone.DuoSynth)
-
     // this.synth = new Tone.DuoSynth()
 
     //@ts-ignore
@@ -47,7 +49,6 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
       // vibratoAmount: .1,
     })
 
-
     this.synth.volume.value = -20
 
     this.delay = new Tone.FeedbackDelay(.3, .7)
@@ -64,11 +65,12 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
 
   ngAfterViewInit() {
 
-    setInterval(() => {
+    // setInterval(() => {
 
-      // this.synth.set({ harmonicity: Math.random() * 1 + .5})
+      //@ts-ignore
+      // this.synth.set({ harmonicity: [0, .1, 1, .9][Math.round(Math.random() * 3)]})
 
-    }, 100)
+    // }, 500)
   }
 
   ngOnDestroy() {
@@ -95,7 +97,6 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
-
   onClick(e: MouseEvent) {
 
     if(this.init == true) {
@@ -110,8 +111,8 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
         return note
       }
 
-      this.synth.triggerAttackRelease(getRandomNote(), .5, Tone.context.currentTime)
-      this.synth.triggerAttackRelease(getRandomNote(), .5, Tone.context.currentTime)
+      this.synth.triggerAttackRelease(getRandomNote(), this.noteLength, Tone.context.currentTime)
+      this.synth.triggerAttackRelease(getRandomNote(), this.noteLength, Tone.context.currentTime)
     }
   }
 }

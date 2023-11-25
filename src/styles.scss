@@ -28,3 +28,21 @@ body {
     background-color: var(--c-yellow)
 
 }
+
+
+
+.sq-btn {
+
+    cursor: pointer;
+
+    position: absolute;
+    left: 0px;
+    top: 0px;
+
+    width: 30px;
+    height: 30px;
+    line-height: 33px;
+    text-align: center;
+
+    color: #ffffff;
+}

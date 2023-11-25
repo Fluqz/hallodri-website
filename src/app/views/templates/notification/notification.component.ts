@@ -11,9 +11,9 @@ export class NotificationComponent {
   @Input('notification') notification: INotification
   @Input('index') set index(i: number) {
 
-    this.bottom = i == 0 ? 20 : (i * 45) + 20
+    this.bottom = i == 0 ? 5 : (i * 45) + 5
   }
 
-  @HostBinding('style.bottom.px') bottom: number = 20
+  @HostBinding('style.bottom.px') bottom: number = 5
 
 }
