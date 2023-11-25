@@ -170,7 +170,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
 
     this.scale = this.scales[this.scalesIndex].scale
 
-    if(this.voiceAmount > this.scales.length) this.voiceAmount = this.scales.length
+    if(this.voiceAmount > this.scale.length) this.voiceAmount = this.scale.length
   }
 
   onVoiceAmountKey(e: PointerEvent) {
@@ -182,8 +182,6 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
 
     if(this.voiceAmount > this.scale.length) this.voiceAmount = 1
     else if(this.voiceAmount <= 0) this.voiceAmount = this.scale.length
-
-    this.voiceAmount
   }
 
   onPointerDown(e: PointerEvent) {
