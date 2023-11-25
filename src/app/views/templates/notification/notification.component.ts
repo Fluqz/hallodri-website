@@ -8,12 +8,14 @@ import { INotification } from 'src/app/provider/notification.service';
 })
 export class NotificationComponent {
 
+  private _botPos: number = 10
+
   @Input('notification') notification: INotification
   @Input('index') set index(i: number) {
 
-    this.bottom = i == 0 ? 5 : (i * 45) + 5
+    this.bottom = i == 0 ? this._botPos : (i * 45) + this._botPos
   }
 
-  @HostBinding('style.bottom.px') bottom: number = 5
+  @HostBinding('style.bottom.px') bottom: number = this._botPos
 
 }

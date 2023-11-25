@@ -3,7 +3,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 
-export type NotificationType = 'ERROR' | 'WARNING' | 'AUDIO' | 'INFO'
+export type NotificationType = 'ERROR' | 'WARNING' | 'AUDIO' | 'INFO' | 'SYSTEM'
 
 
 export interface INotification {
@@ -14,23 +14,51 @@ export interface INotification {
 
     dirty?: boolean
     timeStamp?: number
+    duration?: number
 }
 
 export const NOTIFICATIONS = {
 
     AUDIO: {
+
+        WAVE_ENABLED: {
+            type: 'AUDIO',
+            title: 'Wave',
+            message: 'Enabled and running.',
+            duration: 4000,
+        },
         SOUND_ON: {
             type: 'AUDIO',
             title: 'Audio',
             message: 'Sound: ON'
         },
-
         SOUND_OFF: {
             type: 'AUDIO',
             title: 'Audio',
             message: 'Sound: OFF'
+        },
+        MUTED: {
+            type: 'AUDIO',
+            title: 'Audio',
+            message: 'Muted',
+            duration: 4000,
+        },
+        UNMUTED: {
+            type: 'AUDIO',
+            title: 'Audio',
+            message: 'Unmuted',
+            duration: 4000,
+        },
+    },
+    SYSTEM: {
+        BOOTING: {
+            type: 'AUDIO',
+            title: 'System',
+            message: 'Booting...',
+            duration: 4000,
         }
     }
+    
 }
 
 @Injectable({
@@ -52,7 +80,7 @@ export class NotificationService implements OnDestroy {
 
         this.onChange = new Subject()
 
-        this._IID = window.setInterval(this.clean.bind(this), 500)
+        this._IID = window.setInterval(this.clean.bind(this), 200)
     }
 
     send(notification: INotification) {
@@ -61,15 +89,22 @@ export class NotificationService implements OnDestroy {
 
         notification.dirty = false
 
-        if(notification.timeStamp == undefined)
-            notification.timeStamp = Date.now() + this._notificationTime
+        notification.duration = (notification.duration == null || notification.duration < 0) ? this._notificationTime : notification.duration
 
-        else if(notification.timeStamp < Date.now()) {
+        if(notification.timeStamp == undefined || notification.timeStamp < Date.now())
+            notification.timeStamp = Date.now()
+
+        else if(notification.timeStamp + notification.duration <= Date.now()) {
 
             notification.dirty = true
 
-            throw console.error('Notification ERR: NotificationService.send(n) - notification.timeStamp is already timed out', notification.timeStamp);
+            console.trace()
+
+            throw console.error('Notification ERR: NotificationService.send(n) - notification.timeStamp is already timed out', notification);
+
+            return
         }
+
 
         this.onChange.next(this.notifications)
     }
@@ -95,13 +130,13 @@ export class NotificationService implements OnDestroy {
         for(let n of this.notifications) {
 
             // Check if notification is overdue
-            if(n.timeStamp && n.timeStamp <= Date.now()) {
+            if(n.timeStamp != undefined && n.duration != undefined && n.timeStamp + n.duration <= Date.now()) {
 
                 n.dirty = true
             }
 
             // Add dirty notifications for removal
-            if(n.dirty == true) {
+            if(n.dirty === true) {
 
                 dirtyNotifications.push(n)
             }
@@ -119,7 +154,6 @@ export class NotificationService implements OnDestroy {
     ngOnDestroy(): void {
         
         window.clearInterval(this._IID)
-
     }
 }
 

@@ -1,25 +1,36 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import * as Tone from 'tone'
 import { INotification, NOTIFICATIONS, NotificationService } from '../../provider/notification.service';
+import { G } from 'src/app/globals';
 
 @Component({
   selector: 'home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   host: {
-    '(document:mousedown)': 'onMouseDown($event)',
-    '(document:mouseup)': 'onMouseUp($event)',
+    '(document:pointerdown)': 'onPointerDown($event)',
+    '(document:pointerup)': 'onPointerUp($event)',
+    '(window:blur)': 'onBlur($event)',
+    '(window:focus)': 'onFocus($event)',
+    '(document:visibilitychange)': 'onVisibilityChange($event)',
+    '(window:pointermove)': 'onPointerMove($event)',
+    '(document:mouseleave)': 'onMouseLeave($event)',
+    
   }
 })
-export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
+export class HomeComponent implements OnDestroy, AfterViewInit {
 
   // private synth: Tone.DuoSynth
   synth: Tone.PolySynth<Tone.DuoSynth>
   delay: Tone.FeedbackDelay
 
   private init: boolean = false
-  private mouseDown: boolean = false
+  private pointerDown: boolean = false
+  /** Did the pointer leave the window */
+  private pointerLeft: boolean = false
   private activeNotes: string[]
+
+  private _muted: boolean = false
 
   constructor(public notification: NotificationService) {
 
@@ -61,20 +72,12 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
 
     this.delay.toDestination()
     this.synth.toDestination()
-  }
-
-  ngOnInit(): void {
 
   }
 
   ngAfterViewInit() {
 
-    // setInterval(() => {
-
-      //@ts-ignore
-      // this.synth.set({ harmonicity: [0, .1, 1, .9][Math.round(Math.random() * 3)]})
-
-    // }, 500)
+    this.notification.send(NOTIFICATIONS.AUDIO.WAVE_ENABLED as INotification)
   }
 
   ngOnDestroy() {
@@ -83,16 +86,25 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
     this.synth.dispose()
   }
 
+  mute(m:boolean) {
+    
+    this._muted = m === true ? true : false
 
-  getNotifications() {
+    if(this._muted) Tone.Destination.volume.exponentialRampTo(Number.NEGATIVE_INFINITY, .3, Tone.now())
+    else Tone.Destination.volume.exponentialRampTo(1, .3, Tone.now())
 
-    return this.notification.notifications
+    // console.trace()
+    this.notification.send((this._muted ?  NOTIFICATIONS.AUDIO.MUTED : NOTIFICATIONS.AUDIO.UNMUTED) as INotification)
   }
 
+  onPointerDown(e: PointerEvent) {
 
-  onMouseDown(e: MouseEvent) {
+    if(e.button == 2) {
+      this.synth.releaseAll()
+      return 
+    }
 
-    this.mouseDown = true
+    this.pointerDown = true
 
     if(this.init == false) {
 
@@ -119,19 +131,85 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
 
       i = this.activeNotes.push(getRandomNote()) - 1
       this.synth.triggerAttack(this.activeNotes[i], Tone.context.currentTime)
+
+      this.notification.send({
+        type: 'AUDIO',
+        title: 'Note',
+        message: this.activeNotes[this.activeNotes.length - 1],
+        duration: 2000
+      })
+
+      this.notification.send({
+        type: 'AUDIO',
+        title: 'Note',
+        message: this.activeNotes[this.activeNotes.length - 2],
+        duration: 2000
+      })
     }
   }
 
-  onMouseUp(e: MouseEvent) {
+  onPointerUp(e: PointerEvent) {
 
-    this.mouseDown = false
+    this.pointerDown = false
 
-    let note = this.activeNotes.splice(this.activeNotes.length - 1, 1)
-    this.synth.triggerRelease(note, Tone.context.currentTime)
+    // if(this.activeNotes.length >= 2) {
+    //   let note = this.activeNotes.splice(this.activeNotes.length - 1, 1)
+    //   this.synth.triggerRelease(note, Tone.context.currentTime)
 
-    note = this.activeNotes.splice(this.activeNotes.length - 1, 1)
-    this.synth.triggerRelease(note, Tone.context.currentTime)
+    //   note = this.activeNotes.splice(this.activeNotes.length - 1, 1)
+    //   this.synth.triggerRelease(note, Tone.context.currentTime)
+    // }
 
-    // this.synth.releaseAll()
+    this.synth.releaseAll()
+
+    this.activeNotes.length = 0
+  }
+
+  onPointerMove(e: PointerEvent) {
+
+    if(this.pointerLeft == true) {
+
+      this.pointerLeft = false
+      this.mute(false)
+    }
+  }
+  
+  onMouseLeave(e: MouseEvent) {
+
+    console.log('out', e.clientX, e.clientY)
+
+    this.pointerLeft = true
+
+    this.synth.releaseAll()
+
+    this.mute(true)
+  }
+
+  onFocus(e: Event) {
+
+    this.synth.releaseAll()
+
+    this.mute(false)
+  }
+
+  onBlur(e: Event) {
+
+    this.synth.releaseAll()
+
+    this.mute(true)
+  }
+
+  onVisibilityChange(e: Event) {
+
+    this.synth.releaseAll()
+
+    if (document.visibilityState == "visible") {
+              
+      this.mute(false)
+    }
+    else {
+
+      this.mute(true)
+    }
   }
 }

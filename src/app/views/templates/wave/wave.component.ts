@@ -49,7 +49,7 @@ export class WaveComponent implements AfterViewInit {
     this.w = host.clientWidth
     this.h = host.clientHeight
 
-    this.amplitude = this.h / 2 - this.noise * 2
+    this.amplitude = (this.h / 2) - (this.noise * 2)
 
     this.init()
   }
