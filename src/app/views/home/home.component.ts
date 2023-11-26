@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy } from '@angular/core';
 import * as Tone from 'tone'
 import { INotification, NOTIFICATIONS, NotificationService } from '../../provider/notification.service';
 import { G } from 'src/app/globals';
@@ -27,8 +27,8 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
   private pointerLeft: boolean = false
 
   private _muted: boolean = false
-  masterMuted: boolean = false
   private muteNote: INotification | undefined
+  masterMuted: boolean = false
 
 
   public synthesizer: Synthesizer
@@ -99,9 +99,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
       this.notification.remove(this.muteNote)
     }
 
-    this.muteNote = this.notification.send(
-      (this._muted ?  NOTIFICATIONS.AUDIO.MUTED : NOTIFICATIONS.AUDIO.UNMUTED) as INotification,
-    )
+    this.muteNote = this.notification.send((this._muted ?  NOTIFICATIONS.AUDIO.MUTED : NOTIFICATIONS.AUDIO.UNMUTED) as INotification)
   }
 
   onMuteMaster(e: PointerEvent) {
@@ -240,8 +238,6 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     }
 
 
-    // Scale length == max
-
     const scaleNotes = getScale(this.key, this.scale)
 
     if(scaleNotes == null) {
@@ -250,7 +246,6 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
       return []
     }
 
-    console.log('Scale Notes', scaleNotes)
 
     const notes: Tone.Unit.Note[] = []
 

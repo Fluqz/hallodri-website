@@ -4,7 +4,9 @@ import { Vec2 } from 'src/app/util/vec2';
 @Component({
   selector: 'wave',
   templateUrl: './wave.component.html',
-  styleUrls: ['./wave.component.scss']
+  styleUrls: ['./wave.component.scss'],
+  host: {
+  }
 })
 export class WaveComponent implements AfterViewInit {
 
