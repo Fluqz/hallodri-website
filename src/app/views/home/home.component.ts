@@ -4,6 +4,7 @@ import { INotification, NOTIFICATIONS, NotificationService } from '../../provide
 import { G } from 'src/app/globals';
 import { Synthesizer } from 'src/app/synthesizer';
 import { AEOLIAN_SCALE, BLUES_9NOTE_SCALE, CHROMATIC, DORIAN_SCALE, HEPTATONIC_SCALE, HEXATONIC_SCALE, HIRAJOSHI_SCALE, IONIAN_SCALE, LOKRIAN_SCALE, LYDIAN_SCALE, MINOR_PENTATONIC_SCALE, MYXOLYDIAN_SCALE, PENTATONIC_SCALE, PHRYGIAN_SCALE, getScale, standard_notes } from 'src/app/util/note-frequencies';
+import { Vec2 } from 'src/app/util/vec2';
 
 @Component({
   selector: 'home',
@@ -21,21 +22,35 @@ import { AEOLIAN_SCALE, BLUES_9NOTE_SCALE, CHROMATIC, DORIAN_SCALE, HEPTATONIC_S
 })
 export class HomeComponent implements OnDestroy, AfterViewInit {
 
+  /** Init flag - Has the App and Tone already started? */
   private init: boolean = false
+  /** Is the pointer active. Mouse click, touch down or pen down. */
   private pointerDown: boolean = false
+  /** Current position of the pointer. */
+  private pointerPos: Vec2 = new Vec2()
+  /** Position of the pointer down. */
+  private pointerDownPos: Vec2 = new Vec2()
   /** Did the pointer leave the window */
   private pointerLeft: boolean = false
 
+  /** Muted flag. */
   private _muted: boolean = false
+  /** Notification of the mute event */
   private muteNote: INotification | undefined
+  /** Master muted flag */
   masterMuted: boolean = false
 
 
+  /** Synthesizer class instance using Tone */
   public synthesizer: Synthesizer
+  /** Active key note used to determine the scale. */
   public key: Tone.Unit.Note
+  /** Scale used to find random notes. */
   public scale: number[]
+  /** Number of notes played at a time. */
   public voiceAmount: number
 
+  /** Index number to store the currently used scale. Index is used with the scales array. */
   public scalesIndex: number = 0
   public scales: { name:string, scale:number[] }[] = [
 
@@ -75,19 +90,30 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
 
   ngAfterViewInit() {
 
-    this.notification.send(NOTIFICATIONS.SYSTEM.SYNTH_READY as INotification)
+    // setTimeout(() => {
+      
+      this.notification.send(NOTIFICATIONS.SYSTEM.SYNTH_READY as INotification)
+      
+      // setTimeout(() => {
+        
+        this.notification.send(NOTIFICATIONS.SYSTEM.WAVE_ENABLED as INotification)
+        
+    //   }, 200);
+      
+    // }, 200);
 
-    this.notification.send(NOTIFICATIONS.SYSTEM.WAVE_ENABLED as INotification)
   }
   ngOnDestroy() {
 
     this.synthesizer.destroy()
   }
 
+  /** Mute/Unmute everything internally */
   mute(m:boolean) {
 
     if(this.synthesizer.muted == m) return
 
+    // If master is muted, dont allow changes.
     if(this.masterMuted == true) return
 
     this.synthesizer.mute(m)
@@ -102,6 +128,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     this.muteNote = this.notification.send((this._muted ?  NOTIFICATIONS.AUDIO.MUTED : NOTIFICATIONS.AUDIO.UNMUTED) as INotification)
   }
 
+  /** Mute/Unmute master by user */
   onMuteMaster(e: PointerEvent) {
 
     e.stopPropagation()
@@ -109,6 +136,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     this.toggleMuteMaster()
   }
 
+  /** Toggles master mute/unmute */
   toggleMuteMaster() {
 
     // MUTE
@@ -133,6 +161,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     }
   }
 
+  /** On clicking the key note btn. Set to next or previous note of all notes. */
   onChangeKey(e: PointerEvent) {
 
     e.stopPropagation()
@@ -152,7 +181,8 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     this.key = (standard_notes[i] + '3') as Tone.Unit.Note
   }
 
-  onChangeScale(e: MouseEvent) {
+  /** On clicking the scale btn. Set to next or previous scale in scales array. */
+  onChangeScale(e: PointerEvent) {
 
     e.stopPropagation()
 
@@ -171,6 +201,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     if(this.voiceAmount > this.scale.length) this.voiceAmount = this.scale.length
   }
 
+  /** On clicking voice amount btn. Increasing or decreasing the voice amount by 1. */
   onVoiceAmountKey(e: PointerEvent) {
 
     e.stopPropagation()
@@ -182,8 +213,16 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     else if(this.voiceAmount <= 0) this.voiceAmount = this.scale.length
   }
 
+  /** Pointer down event. Initializes ToneJs or triggers synthesizer.
+   * Unfortunately it is impossible to distinguish between pointerdown and mobile scrolling.
+   * Every mobile scrolling will fire pointerdown -> pointermove.
+   * 
+   * TODO - How to prevent triggering the synth when intending to scroll on mobile??
+   * 
+   */
   onPointerDown(e: PointerEvent) {
 
+    // Prevent Right click (Cant say 100% that button == 2 = rightClick?!)
     if(e.button == 2) {
       this.synthesizer.releaseAll()
       return 
@@ -191,6 +230,10 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
 
     this.pointerDown = true
 
+    this.pointerDownPos.set(e.clientX, e.clientY)
+    this.pointerPos.copy(this.pointerDownPos)
+
+    /** Initialize ToneJs */
     if(this.init == false) {
 
       this.init = true
@@ -199,6 +242,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
 
       this.notification.send(NOTIFICATIONS.AUDIO.SOUND_ON as INotification)
     }
+    // Play synthesizer
     else {
 
       const notes = this.triggerSynth()
@@ -218,6 +262,11 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     }
   }
 
+  /** Triggers the synthesizer to play notes.
+   * The key note and scale is used to get an array of possible notes.
+   * The amount of notes is determined by the voiceAmount. 
+   * Random notes from the notes array are used to trigger the synthesizer.
+   */
   private triggerSynth() : Tone.Unit.Note[] {
 
     const getRandomNoteFromNotes = (notes: Tone.Unit.Note[]) => {
@@ -253,6 +302,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     return notes
   }
 
+  /** Pointer up event. Releases all triggered notes. */
   onPointerUp(e: PointerEvent) {
 
     this.pointerDown = false
@@ -260,7 +310,19 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     this.synthesizer.releaseAll()
   }
 
+  /** Pointer move event. Prevents unwanted triggering of the synth, 
+   * by checking the pointer position. Basicly checks for a drag and releases all
+   * triggered notes.
+   *
+   * */
   onPointerMove(e: PointerEvent) {
+
+    this.pointerPos.set(e.clientX, e.clientY)
+
+    if(this.pointerDownPos.distanceTo(this.pointerPos) > 10) {
+
+      this.synthesizer.releaseAll()
+    }
 
     if(this.pointerLeft == true) {
 
@@ -269,6 +331,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     }
   }
   
+  /** Not working */
   onMouseLeave(e: MouseEvent) {
 
     console.log('out', e.clientX, e.clientY)
@@ -280,6 +343,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     this.mute(true)
   }
 
+  /** Focusing browser window. */
   onFocus(e: Event) {
 
     this.synthesizer.releaseAll()
@@ -287,6 +351,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     this.mute(false)
   }
 
+  /** Leaving browser window. */
   onBlur(e: Event) {
 
     this.synthesizer.releaseAll()
@@ -294,6 +359,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     this.mute(true)
   }
 
+  /** Visibility of open website. Changing tabs or desktops. Similar to focus/blur events */
   onVisibilityChange(e: Event) {
 
     this.synthesizer.releaseAll()

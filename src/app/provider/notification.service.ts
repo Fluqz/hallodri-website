@@ -5,7 +5,7 @@ import { Subject } from 'rxjs';
 
 export type NotificationType = 'ERROR' | 'WARNING' | 'AUDIO' | 'INFO' | 'SYSTEM'
 
-
+/** Representation of a Notification */
 export interface INotification {
 
     type: NotificationType
@@ -19,6 +19,7 @@ export interface INotification {
     duration?: number
 }
 
+/** Predefined notifications */
 export const NOTIFICATIONS = {
 
     AUDIO: {
@@ -86,12 +87,16 @@ export const NOTIFICATIONS = {
 })
 export class NotificationService implements OnDestroy {
 
+    /** Default notification time till timeout. */
     private _notificationTime: number = 6 * 1000
 
+    /** Array of all notifications */
     notifications: INotification[]
 
+    /** Interval ID for removal. */
     private _IID: number
 
+    /** onChange observable - Triggered everytime a note is added/removed or cleared. */
     onChange: Subject<INotification[]>
 
     constructor() {
@@ -103,6 +108,12 @@ export class NotificationService implements OnDestroy {
         this._IID = window.setInterval(this.clean.bind(this), 200)
     }
 
+    /** Add a notification to be shown.
+     * Returns the added notification.
+     * 
+     * @param notification The notification in the correct format.
+     * @param duration How long the notification will exist.
+     */
     send(notification: INotification, duration?: number) : INotification {
 
         if(this.notifications.indexOf(notification) == -1)
@@ -133,6 +144,9 @@ export class NotificationService implements OnDestroy {
         return notification
     }
 
+    /** Remove the passed in notification.
+     * Marks it as dirty to get removed on cleanup.
+     */
     remove(notification: INotification) : boolean {
 
         let i = this.notifications.indexOf(notification)
@@ -146,6 +160,7 @@ export class NotificationService implements OnDestroy {
         return true
     }
 
+    /** Mark all notifications as dirty and clean. */
     clear() {
 
         for(let n of this.notifications) n.dirty = true
@@ -153,6 +168,9 @@ export class NotificationService implements OnDestroy {
         this.clean()
     }
 
+    /** Walks through all notifications and checks if they timed out.
+     * Marks them as dirty and removes them in the next step.
+     */
     private clean() {
 
         if(this.notifications.length == 0) return

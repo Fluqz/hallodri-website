@@ -5,8 +5,10 @@ export class Synthesizer {
     synth: Tone.PolySynth<Tone.DuoSynth>
     delay: Tone.FeedbackDelay
 
+    /** Keeping track of all triggered notes. */
     private activeNotes: string[]
 
+    /** Muted flag */
     muted: boolean = false
 
     constructor() {
@@ -52,6 +54,7 @@ export class Synthesizer {
         this.synth.toDestination()
     }
 
+    /** Mute/Unmute the Tone.Destination node. */
     mute(m:boolean) {
 
         if(this.muted == m) return
@@ -62,17 +65,20 @@ export class Synthesizer {
         else Tone.Destination.volume.exponentialRampTo(1, .3, Tone.now())
     }
 
+    /** Trigger a note. */
     triggerAttack(note: Tone.Unit.Note) {
 
         let i = this.activeNotes.push(note) - 1
         this.synth.triggerAttack(this.activeNotes[i], Tone.context.currentTime)
     }
 
+    /** Release */
     triggerRelease() {
 
         this.synth.releaseAll()
     }
 
+    /** Release all notes. */
     releaseAll() {
 
         this.synth.releaseAll()
@@ -80,6 +86,7 @@ export class Synthesizer {
         this.activeNotes.length = 0
     }
 
+    /** Destroy synthesizer. */
     destroy() {
 
         this.synth.releaseAll()

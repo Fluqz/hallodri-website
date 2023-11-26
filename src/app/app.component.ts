@@ -22,6 +22,7 @@ export class AppComponent implements AfterViewInit {
 
   @ViewChild(SidemenuComponent) sidemenu: SidemenuComponent
 
+  /** Angle of the pointer position */
   mouseAngle: number = 0
 
   constructor(public notification: NotificationService) {
@@ -42,6 +43,8 @@ export class AppComponent implements AfterViewInit {
 
     n.onTimeout = () => {
 
+      // this.notification.clear()
+
       this.notification.send({
         type: 'SYSTEM',
         title: 'Synthesizer',
@@ -52,9 +55,11 @@ export class AppComponent implements AfterViewInit {
 
   }
 
+  /** Open sidemenu */
   open() { if(this.sidemenu) this.sidemenu.open() }
 
-  onPointerMove(e: MouseEvent) {
+  /** Rotates the menu icon to towards the pointer. */
+  onPointerMove(e: PointerEvent) {
 
     this.mouseAngle = M.getAngle(20, -20, e.clientX, e.clientY)
   }
