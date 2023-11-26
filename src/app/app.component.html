@@ -12,9 +12,9 @@
 <!-- Notifications -->
 <div *ngIf="notifications && notifications.length > 0">
 
-    <div *ngFor="let n of notifications; let i = index;">
+    <div *ngFor="let n of notifications; let i = index;" @slideInOut>
 
-        <notification [notification]="n" [index]="i"></notification>
+        <notification @slideInOut [notification]="n" [index]="i"></notification>
 
     </div>
 
