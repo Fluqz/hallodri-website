@@ -77,7 +77,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
 
     this.notification.send(NOTIFICATIONS.SYSTEM.SYNTH_READY as INotification)
 
-    this.notification.send(NOTIFICATIONS.AUDIO.WAVE_ENABLED as INotification)
+    this.notification.send(NOTIFICATIONS.SYSTEM.WAVE_ENABLED as INotification)
   }
   ngOnDestroy() {
 
@@ -198,13 +198,6 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
       Tone.Transport.start()
 
       this.notification.send(NOTIFICATIONS.AUDIO.SOUND_ON as INotification)
-
-      this.notification.send({
-        type: 'SYSTEM',
-        title: 'Synthesizer',
-        message: 'CLICK ME !',
-        duration: 2000
-      })
     }
     else {
 

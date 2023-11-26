@@ -38,7 +38,17 @@ export class AppComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
 
-    this.notification.send(NOTIFICATIONS.SYSTEM.BOOTING as INotification)
+    const n = this.notification.send(NOTIFICATIONS.SYSTEM.BOOTING as INotification)
+
+    n.onTimeout = () => {
+
+      this.notification.send({
+        type: 'SYSTEM',
+        title: 'Synthesizer',
+        message: 'CLICK ME !',
+        duration: 2000
+      })
+    }
 
   }
 

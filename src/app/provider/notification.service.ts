@@ -12,6 +12,8 @@ export interface INotification {
     title?: string
     message: string
 
+    onTimeout?: () => void
+
     dirty?: boolean
     timeStamp?: number
     duration?: number
@@ -21,12 +23,6 @@ export const NOTIFICATIONS = {
 
     AUDIO: {
 
-        WAVE_ENABLED: {
-            type: 'AUDIO',
-            title: 'Wave',
-            message: 'Enabled and running.',
-            duration: 4000,
-        },
         SOUND_ON: {
             type: 'AUDIO',
             title: 'Audio',
@@ -73,6 +69,12 @@ export const NOTIFICATIONS = {
             type: 'AUDIO',
             title: 'System',
             message: 'Synthesizer ready.',
+            duration: 4000,
+        },
+        WAVE_ENABLED: {
+            type: 'AUDIO',
+            title: 'System',
+            message: 'Wave powered and running',
             duration: 4000,
         },
     }
@@ -169,6 +171,11 @@ export class NotificationService implements OnDestroy {
         for(let n of dirtyNotifications) {
 
             this.notifications.splice(this.notifications.indexOf(n), 1)
+
+            if(n.onTimeout) {
+                n.onTimeout()
+                delete n.onTimeout
+            }
 
             this.onChange.next(this.notifications)
         }
