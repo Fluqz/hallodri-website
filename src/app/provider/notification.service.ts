@@ -146,7 +146,14 @@ export class NotificationService implements OnDestroy {
         return true
     }
 
-    clean() {
+    clear() {
+
+        for(let n of this.notifications) n.dirty = true
+
+        this.clean()
+    }
+
+    private clean() {
 
         if(this.notifications.length == 0) return
 
