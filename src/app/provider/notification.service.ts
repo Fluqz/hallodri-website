@@ -38,7 +38,7 @@ export const NOTIFICATIONS = {
             type: 'AUDIO',
             title: 'Audio',
             message: 'Muted',
-            duration: 4000,
+            duration: Number.POSITIVE_INFINITY,
         },
         UNMUTED: {
             type: 'AUDIO',

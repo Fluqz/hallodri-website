@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, OnDestroy } from '@angular/core';
 import * as Tone from 'tone'
+
 import { INotification, NOTIFICATIONS, NotificationService } from '../../provider/notification.service';
 import { G } from 'src/app/globals';
 import { Synthesizer } from 'src/app/synthesizer';
@@ -22,8 +23,6 @@ import { Vec2 } from 'src/app/util/vec2';
 })
 export class HomeComponent implements OnDestroy, AfterViewInit {
 
-  /** Init flag - Has the App and Tone already started? */
-  private init: boolean = false
   /** Is the pointer active. Mouse click, touch down or pen down. */
   private pointerDown: boolean = false
   /** Current position of the pointer. */
@@ -60,16 +59,16 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     // [ 3, 4, 1, 2 ]
     { name: 'CUSTOM 1', scale: [ 3, 4, 1, 2 ] },
 
+    { name: 'IONIAN', scale: IONIAN_SCALE },
+    { name: 'AEOLIAN', scale: AEOLIAN_SCALE },
+    { name: 'DORIAN', scale: DORIAN_SCALE },
+    { name: 'LYDIAN', scale: LYDIAN_SCALE },
+    { name: 'LOKRIAN', scale: LOKRIAN_SCALE },
+    { name: 'PHRYGIAN', scale: PHRYGIAN_SCALE },
+    { name: 'MYXOLYDIAN', scale: MYXOLYDIAN_SCALE },
+
     { name: 'MINOR PENTATONIC', scale: MINOR_PENTATONIC_SCALE },
     { name: 'PENTATONIC', scale: PENTATONIC_SCALE },
-
-    { name: 'IONIAN', scale: IONIAN_SCALE },
-    { name: 'DORIAN', scale: DORIAN_SCALE },
-    { name: 'PHRYGIAN', scale: PHRYGIAN_SCALE },
-    { name: 'LYDIAN', scale: LYDIAN_SCALE },
-    { name: 'MYXOLYDIAN', scale: MYXOLYDIAN_SCALE },
-    { name: 'AEOLIAN', scale: AEOLIAN_SCALE },
-    { name: 'LOKRIAN', scale: LOKRIAN_SCALE },
 
     { name: 'HIRAJOSHI', scale: HIRAJOSHI_SCALE },
     { name: 'HEXATONIC', scale: HEXATONIC_SCALE },
@@ -172,7 +171,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
 
     if(i == -1) return
 
-    if(e.shiftKey) i--
+    if(e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) i--
     else i++
 
     if(i >= standard_notes.length) i = 0
@@ -188,7 +187,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
 
     let i = this.scalesIndex
 
-    if(e.shiftKey) i--
+    if(e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) i--
     else i++
 
     if(i >= this.scales.length) i = 0
@@ -206,7 +205,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
 
     e.stopPropagation()
 
-    if(e.shiftKey) this.voiceAmount--
+    if(e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) this.voiceAmount--
     else this.voiceAmount++
 
     if(this.voiceAmount > this.scale.length) this.voiceAmount = 1
@@ -234,9 +233,9 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     this.pointerPos.copy(this.pointerDownPos)
 
     /** Initialize ToneJs */
-    if(this.init == false) {
+    if(G.init == false) {
 
-      this.init = true
+      G.init = true
       Tone.start()
       Tone.Transport.start()
 
@@ -272,7 +271,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     const getRandomNoteFromNotes = (notes: Tone.Unit.Note[]) => {
 
       const i = Math.round(Math.random() * (notes.length-1))
-      const o = Math.round(Math.random() * 6) + 1
+      const o = Math.round(Math.random() * 5) + 1
 
       const note = (notes[i].replace(/[0-9]/g, '') + o)
 

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterContentInit, AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { INotification, NOTIFICATIONS, NotificationService } from './provider/notification.service';
 import { SidemenuComponent } from './views/sidemenu/sidemenu.component';
 import { G } from './globals';
@@ -16,7 +16,7 @@ import { M } from './util/math';
     '(document:pointermove)': 'onPointerMove($event)',
   }
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements AfterContentInit {
 
   notifications: INotification[]
 
@@ -30,20 +30,23 @@ export class AppComponent implements AfterViewInit {
     G.w = window.innerWidth
     G.h = window.innerHeight
 
-    notification.onChange.subscribe((_notifications) => {
-
-      this.notifications = _notifications
-    })
 
   }
 
-  ngAfterViewInit(): void {
+  ngAfterContentInit(): void {
+
+    this.notification.onChange.subscribe((_notifications) => {
+
+      this.notifications = _notifications
+    })
 
     const n = this.notification.send(NOTIFICATIONS.SYSTEM.BOOTING as INotification)
 
     n.onTimeout = () => {
 
       // this.notification.clear()
+
+      // if(G.init == true) return
 
       this.notification.send({
         type: 'SYSTEM',
@@ -52,7 +55,6 @@ export class AppComponent implements AfterViewInit {
         duration: 2000
       })
     }
-
   }
 
   /** Open sidemenu */
