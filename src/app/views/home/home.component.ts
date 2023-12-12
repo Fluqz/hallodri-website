@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, QueryList, ViewChildren } from '@angular/core';
 import * as Tone from 'tone'
 
 import { INotification, NOTIFICATIONS, NotificationService } from '../../provider/notification.service';
@@ -22,6 +22,8 @@ import { Vec2 } from 'src/app/util/vec2';
   }
 })
 export class HomeComponent implements OnDestroy, AfterViewInit {
+
+  public visuals: HTMLCollectionOf<Element>
 
   /** Is the pointer active. Mouse click, touch down or pen down. */
   private pointerDown: boolean = false
@@ -88,6 +90,9 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit() {
+
+    this.visuals = document.getElementsByClassName('visual')
+    
 
     // setTimeout(() => {
       
@@ -246,6 +251,8 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
 
       const notes = this.triggerSynth()
 
+      this.triggerVisuals()
+
       let i = 0
       for(let n of notes) {
 
@@ -301,12 +308,50 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     return notes
   }
 
+  triggerVisuals() {
+
+    let i = 0
+    const array = Array.from(this.visuals)
+    for(let v of array) {
+
+      const ele = v as HTMLElement
+
+      ele.classList.add('trigger')
+
+      const ii = i + 1
+      ele.style.width = ((200) * ii) + 'px'
+      ele.style.height = ((200) * ii) + 'px'
+      ele.style.zIndex = (array.length - ii).toString()
+      ele.style.backgroundColor = `rgba(${ii * (255 / this.voiceAmount)}, ${ii * (155 / this.voiceAmount)}, ${ii * (55 / this.voiceAmount)}, 255)`
+
+      i++
+    }
+  }
+
+  releaseVisuals() {
+
+    let i = 0
+    for(let v of Array.from(this.visuals)) {
+
+      const ele = v as HTMLElement
+
+      ele.classList.remove('trigger')
+
+      ele.style.width = '0'
+      ele.style.height = '0'
+
+      i++
+    }
+  }
+
   /** Pointer up event. Releases all triggered notes. */
   onPointerUp(e: PointerEvent) {
 
     this.pointerDown = false
 
     this.synthesizer.releaseAll()
+
+    this.releaseVisuals()
   }
 
   /** Pointer move event. Prevents unwanted triggering of the synth, 

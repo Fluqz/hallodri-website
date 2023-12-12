@@ -3,6 +3,8 @@
 
     <div class="sq-btn mute" [class.active]="masterMuted" title="Mute" (pointerdown)="onMuteMaster($event)">M</div>
 
+    <div *ngFor="let v of [].constructor(voiceAmount); let i = index" class="visual" [ngClass]="i.toString()"></div>
+
 
     <div class="logo">
 
