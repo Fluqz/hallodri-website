@@ -73,9 +73,12 @@ export class Synthesizer {
     }
 
     /** Release */
-    triggerRelease() {
+    triggerRelease(note: Tone.Unit.Note) {
 
-        this.synth.releaseAll()
+        this.synth.triggerRelease(note, Tone.context.currentTime)
+
+        let i = this.activeNotes.indexOf(note)
+        this.activeNotes.splice(i, 1)
     }
 
     /** Release all notes. */
@@ -89,7 +92,8 @@ export class Synthesizer {
     /** Destroy synthesizer. */
     destroy() {
 
-        this.synth.releaseAll()
+        this.releaseAll()
         this.synth.dispose()
+        this.delay.dispose()
     }
 }
