@@ -1,4 +1,9 @@
 
+mute on close tab?
+
+volume down
+
+menu not obvious 
 
 #mobile
 
