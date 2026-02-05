@@ -1,7 +1,7 @@
 
 <div class="wrapper">
 
-    <div class="sq-btn mute" [class.active]="masterMuted" title="Mute" (pointerdown)="onMuteMaster($event)">M</div>
+    <div class="sq-btn mute" [class.active]="masterMuted" alt="Mute" title="Mute" (pointerdown)="onMuteMaster($event)">M</div>
 
 
     <div class="logo">
@@ -10,15 +10,17 @@
         
         <div id="wave-container">
 
-            <wave></wave>
+            <wave *ngIf="showStaticWave"></wave>
+            <wave-analyzer *ngIf="showAnalyzerWave" [synth]="synthesizer.synth"></wave-analyzer>
 
         </div>
 
         <div class="synthesizer-menu">
 
-            <div class="sq-btn" title="Key" (pointerdown)="onChangeKey($event)">{{ key }}</div>
-            <div class="sq-btn" title="Scale" (pointerdown)="onChangeScale($event)">{{ scales[scalesIndex].name }}</div>
-            <div class="sq-btn" title="Amount of Voices" (pointerdown)="onVoiceAmountKey($event)">{{ voiceAmount }}</div>
+            <div class="sq-btn" alt="Key" title="Key" (pointerdown)="onChangeKey($event)">{{ key }}</div>
+            <div class="sq-btn" alt="Scale" title="Scale" (pointerdown)="onChangeScale($event)">{{ scales[scalesIndex].name }}</div>
+            <div class="sq-btn" alt="Amount of Voices"title="Amount of Voices" (pointerdown)="onVoiceAmountKey($event)">{{ voiceAmount }}</div>
+            <div class="sq-btn" [class.active]="synthesizer.isDelayEnabled" alt="Delay" title="Delay" (pointerdown)="onToggleDelay($event)">D</div>
 <!-- 
             <div class="dropdown">
                 <select name="scale" class="dropdown-select" (change)="onChangeScale($event)">

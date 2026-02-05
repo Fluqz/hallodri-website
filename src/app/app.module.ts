@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './views/home/home.component';
 
 import { WaveComponent } from './views/templates/wave/wave.component';
+import { WaveAnalyzerComponent } from './views/templates/wave-analyzer/wave-analyizer.component';
 import { SocialComponent } from './views/templates/social/social.component';
 import { NotificationComponent } from './views/templates/notification/notification.component';
 
@@ -19,6 +20,7 @@ import { SidemenuComponent } from './views/sidemenu/sidemenu.component';
     AppComponent,
     HomeComponent,
     WaveComponent,
+    WaveAnalyzerComponent,
     SocialComponent,
     NotificationComponent,
     SidemenuComponent

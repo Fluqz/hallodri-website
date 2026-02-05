@@ -5,11 +5,15 @@ export class Synthesizer {
     synth: Tone.PolySynth<Tone.DuoSynth>
     delay: Tone.FeedbackDelay
 
+    private maxVolume: number = -3
+
     /** Keeping track of all triggered notes. */
     private activeNotes: string[]
 
     /** Muted flag */
     muted: boolean = false
+
+    public isDelayEnabled: boolean = false
 
     constructor() {
 
@@ -44,13 +48,14 @@ export class Synthesizer {
         // vibratoAmount: .1,
         })
 
-        this.synth.volume.value = -20
+        this.synth.volume.value = -10
+        Tone.Destination.volume.value = this.maxVolume
 
         this.delay = new Tone.FeedbackDelay(0.3, 0.7)
 
         this.synth.connect(this.delay)
 
-        this.delay.toDestination()
+        // this.delay.toDestination()
         this.synth.toDestination()
     }
 
@@ -62,7 +67,7 @@ export class Synthesizer {
         this.muted = m === true ? true : false
 
         if(this.muted) Tone.Destination.volume.exponentialRampTo(Number.NEGATIVE_INFINITY, .3, Tone.now())
-        else Tone.Destination.volume.exponentialRampTo(1, .3, Tone.now())
+        else Tone.Destination.volume.exponentialRampTo(this.maxVolume, .3, Tone.now())
     }
 
     /** Trigger a note. */
@@ -79,6 +84,20 @@ export class Synthesizer {
 
         let i = this.activeNotes.indexOf(note)
         this.activeNotes.splice(i, 1)
+    }
+
+    toggleDelay(active?:boolean) {
+
+        if(active == undefined) this.isDelayEnabled = !this.isDelayEnabled
+        else {
+
+            if(this.isDelayEnabled == active) return
+            this.isDelayEnabled = active
+        }
+
+        console.log('togle',this.isDelayEnabled)
+        if(this.isDelayEnabled) this.delay.toDestination()
+        else this.delay.disconnect()
     }
 
     /** Release all notes. */

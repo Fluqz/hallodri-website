@@ -24,7 +24,13 @@ import { Vec2 } from 'src/app/util/vec2';
 export class HomeComponent implements OnDestroy, AfterViewInit {
 
   /** Is the pointer active. Mouse click, touch down or pen down. */
-  private pointerDown: boolean = false
+  public pointerDown: boolean = false
+  /** Show static wave component */
+  public showStaticWave: boolean = true
+  /** Show analyzer wave component */
+  public showAnalyzerWave: boolean = false
+  /** Timeout ID for delay */
+  private _delayTimeout: any
   /** Current position of the pointer. */
   private pointerPos: Vec2 = new Vec2()
   /** Position of the pointer down. */
@@ -104,6 +110,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
   }
   ngOnDestroy() {
 
+    if (this._delayTimeout) clearTimeout(this._delayTimeout)
     this.synthesizer.destroy()
   }
 
@@ -212,6 +219,12 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     else if(this.voiceAmount <= 0) this.voiceAmount = this.scale.length
   }
 
+  /** Toggles delay */
+  onToggleDelay(e: PointerEvent) {
+
+    this.synthesizer.toggleDelay()
+  }
+
   /** Pointer down event. Initializes ToneJs or triggers synthesizer.
    * Unfortunately it is impossible to distinguish between pointerdown and mobile scrolling.
    * Every mobile scrolling will fire pointerdown -> pointermove.
@@ -226,6 +239,9 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
       this.synthesizer.releaseAll()
       return 
     }
+
+    // Cancel any pending timeout from previous interaction
+    if (this._delayTimeout) clearTimeout(this._delayTimeout)
 
     this.pointerDown = true
 
@@ -243,6 +259,10 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     }
     // Play synthesizer
     else {
+
+      // Switch to analyzer wave on pointer down
+      this.showStaticWave = false
+      this.showAnalyzerWave = true
 
       const notes = this.triggerSynth()
 
@@ -307,6 +327,15 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     this.pointerDown = false
 
     this.synthesizer.releaseAll()
+
+    // Clear existing timeout if any
+    if (this._delayTimeout) clearTimeout(this._delayTimeout)
+
+    // Switch back to static wave after 1 second delay
+    this._delayTimeout = setTimeout(() => {
+      this.showAnalyzerWave = false
+      this.showStaticWave = true
+    }, 1000)
   }
 
   /** Pointer move event. Prevents unwanted triggering of the synth, 
