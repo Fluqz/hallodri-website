@@ -93,6 +93,11 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     this.voiceAmount = 2
   }
 
+  get destination() {
+
+    return Tone.Destination
+  }
+
   ngAfterViewInit() {
 
     // setTimeout(() => {
@@ -110,7 +115,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
   }
   ngOnDestroy() {
 
-    if (this._delayTimeout) clearTimeout(this._delayTimeout)
+    // if (this._delayTimeout) clearTimeout(this._delayTimeout)
     this.synthesizer.destroy()
   }
 
@@ -165,6 +170,13 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
       this.masterMuted = false
       this.mute(false)
     }
+  }
+
+  onSilence() {
+
+    console.log('Silent')
+    this.showAnalyzerWave = false
+    this.showStaticWave = true
   }
 
   /** On clicking the key note btn. Set to next or previous note of all notes. */
@@ -241,7 +253,7 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     }
 
     // Cancel any pending timeout from previous interaction
-    if (this._delayTimeout) clearTimeout(this._delayTimeout)
+    // if (this._delayTimeout) clearTimeout(this._delayTimeout)
 
     this.pointerDown = true
 
@@ -329,13 +341,13 @@ export class HomeComponent implements OnDestroy, AfterViewInit {
     this.synthesizer.releaseAll()
 
     // Clear existing timeout if any
-    if (this._delayTimeout) clearTimeout(this._delayTimeout)
+    // if (this._delayTimeout) clearTimeout(this._delayTimeout)
 
-    // Switch back to static wave after 1 second delay
-    this._delayTimeout = setTimeout(() => {
-      this.showAnalyzerWave = false
-      this.showStaticWave = true
-    }, 1000)
+    // // Switch back to static wave after 1 second delay
+    // this._delayTimeout = setTimeout(() => {
+    //   this.showAnalyzerWave = false
+    //   this.showStaticWave = true
+    // }, 1000)
   }
 
   /** Pointer move event. Prevents unwanted triggering of the synth, 

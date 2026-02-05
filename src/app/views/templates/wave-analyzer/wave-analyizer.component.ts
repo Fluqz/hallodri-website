@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, OnDestroy, Input } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, OnDestroy, Input, EventEmitter, Output } from '@angular/core';
 import * as Tone from 'tone';
 
 @Component({
@@ -8,7 +8,9 @@ import * as Tone from 'tone';
 })
 export class WaveAnalyzerComponent implements AfterViewInit, OnDestroy {
 
-  @Input() synth!: Tone.PolySynth<Tone.DuoSynth>;
+  @Input() node!: Tone.ToneAudioNode
+
+  @Output() onSilence = new EventEmitter()
 
   w: number = 0;
   h: number = 0;
@@ -23,6 +25,9 @@ export class WaveAnalyzerComponent implements AfterViewInit, OnDestroy {
   private _AFID!: number;
   private analyser!: Tone.Analyser;
   private isRunning = false;
+  wasSilent = false
+  private silenceTimer: any = null;
+  private SILENCE_DURATION = 2000; // 2 seconds
 
   constructor(public ref: ElementRef) {
     this.amplitude = this.h;
@@ -41,6 +46,7 @@ export class WaveAnalyzerComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.stopLoop();
+    if (this.silenceTimer) clearTimeout(this.silenceTimer);
   }
 
   init() {
@@ -56,7 +62,7 @@ export class WaveAnalyzerComponent implements AfterViewInit, OnDestroy {
     // Example: synth.connect(this.analyser);
 
     // Connect synth to analyser
-    this.synth.connect(this.analyser);
+    this.node.connect(this.analyser);
 
     this.startLoop();
   }
@@ -86,6 +92,27 @@ export class WaveAnalyzerComponent implements AfterViewInit, OnDestroy {
     // Get waveform data from Tone.js analyser
     const waveformData = this.analyser.getValue() as Float32Array;
     this.waves[0] = this.createWaveStringFromAnalyser(waveformData);
+
+    // Check if audio is silent
+    const isSilent = this.isAudioSilent();
+    
+    if (isSilent) {
+      // Start silence timer if not already started
+      if (!this.silenceTimer && !this.wasSilent) {
+        this.silenceTimer = setTimeout(() => {
+          this.wasSilent = true;
+          this.onSilence.emit();
+          this.silenceTimer = null;
+        }, this.SILENCE_DURATION);
+      }
+    } else {
+      // Cancel silence timer if audio comes back
+      if (this.silenceTimer) {
+        clearTimeout(this.silenceTimer);
+        this.silenceTimer = null;
+      }
+      this.wasSilent = false;
+    }
   };
 
   /**
@@ -107,6 +134,20 @@ export class WaveAnalyzerComponent implements AfterViewInit, OnDestroy {
     }
 
     return wave;
+  };
+     /**
+   * Check if audio is silent based on RMS (root mean square)
+   */
+  public isAudioSilent = (threshold: number = 0.01): boolean => {
+    const waveformData = this.analyser.getValue() as Float32Array;
+
+    let sum = 0;
+    for (let i = 0; i < waveformData.length; i++) {
+      sum += waveformData[i] * waveformData[i];
+    }
+    const rms = Math.sqrt(sum / waveformData.length);
+
+    return rms < threshold;
   };
 
   /**

@@ -11,7 +11,7 @@
         <div id="wave-container">
 
             <wave *ngIf="showStaticWave"></wave>
-            <wave-analyzer *ngIf="showAnalyzerWave" [synth]="synthesizer.synth"></wave-analyzer>
+            <wave-analyzer *ngIf="showAnalyzerWave" [node]="destination" (onSilence)="onSilence()"></wave-analyzer>
 
         </div>
 
